@@ -1,0 +1,10 @@
+services:
+  next-dexter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "$EXPOSE_PORT:3001"
+    restart: always
+    env_file:
+    - .env

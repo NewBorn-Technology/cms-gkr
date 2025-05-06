@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BaseResponse, LoginResponse, LoginCredentials, DevotionsResponse, Devotion } from '../types/api';
+import { BaseResponse, LoginResponse, LoginCredentials, DevotionsResponse, Devotion, ChurchEventsResponse, ChurchEvent } from '../types/api';
 
 const API_URL = 'https://api-shepherd.jar-vis.com/api/v1';
 
@@ -76,6 +76,62 @@ export const devotionService = {
       if (error.response) {
         console.error('Error response:', error.response.data);
       }
+      throw error;
+    }
+  },
+};
+
+export const churchEventService = {
+  getChurchEvents: async (): Promise<ChurchEventsResponse> => {
+    try {
+      const response = await api.get<ChurchEventsResponse>('/church-events');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  createChurchEvent: async (event: FormData): Promise<BaseResponse<ChurchEvent>> => {
+    try {
+      const response = await api.post<BaseResponse<ChurchEvent>>('/church-events', event, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteChurchEvent: async (id: number): Promise<BaseResponse<void>> => {
+    try {
+      const response = await api.delete<BaseResponse<void>>(`/church-events/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateChurchEvent: async (id: number, event: FormData): Promise<BaseResponse<ChurchEvent>> => {
+    try {
+      const response = await api.put<BaseResponse<ChurchEvent>>(`/church-events/${id}`, event, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating church event:', error);
+      throw error;
+    }
+  },
+
+  getChurchEventById: async (id: number): Promise<BaseResponse<ChurchEvent>> => {
+    try {
+      const response = await api.get<BaseResponse<ChurchEvent>>(`/church-events/${id}`);
+      return response.data;
+    } catch (error) {
       throw error;
     }
   },

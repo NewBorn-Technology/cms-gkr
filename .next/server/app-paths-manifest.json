@@ -1,5 +1,7 @@
 {
-  "/devotions/[id]/edit/page": "app/devotions/[id]/edit/page.js",
-  "/page": "app/page.js",
-  "/devotions/page": "app/devotions/page.js"
+  "/church-events/page": "app/church-events/page.js",
+  "/devotions/page": "app/devotions/page.js",
+  "/church-events/[id]/edit/page": "app/church-events/[id]/edit/page.js",
+  "/devotions/create/page": "app/devotions/create/page.js",
+  "/devotions/[id]/edit/page": "app/devotions/[id]/edit/page.js"
 }

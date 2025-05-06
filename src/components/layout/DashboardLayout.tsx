@@ -1,16 +1,14 @@
 import { ReactNode } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import Sidebar from './Sidebar';
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, user } = useAuthStore();
 
@@ -37,20 +35,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           {/* Navigation */}
           <nav className="flex-1 p-4">
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/devotions"
-                  className={`flex items-center px-4 py-2 rounded-lg ${
-                    pathname === '/devotions'
-                      ? 'bg-primary text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  <span className="ml-3">Devotions</span>
-                </Link>
-              </li>
-            </ul>
+            <Sidebar />
           </nav>
         </div>
       </div>

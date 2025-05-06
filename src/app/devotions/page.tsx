@@ -99,6 +99,15 @@ export default function DevotionsPage() {
     );
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      weekday: 'long',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).replace(/\//g, '-');
+  };
+
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto">
@@ -177,7 +186,7 @@ export default function DevotionsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{devotion.date}</div>
+                        <div className="text-sm text-gray-500">{formatDate(devotion.date)}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">{devotion.book}</div>

@@ -37,4 +37,52 @@ export interface DevotionsResponse {
   data: Devotion[];
   totalCount: number;
   message: string;
+}
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface ChurchEvent {
+  id: number;
+  title: string;
+  description: string;
+  eventDate: string;
+  eventTime: string;
+  isEligibleToCheckIn: boolean;
+  eventImageUrl: string;
+  createdAt: string;
+  isActive: boolean;
+  attendees?: Attendee[];
+  penatalayans?: Penatalayan[];
+}
+
+export interface Attendee {
+  id: number;
+  user: User;
+  churchEventId: number;
+  checkInTime: string;
+  createdAt: string;
+  isActive: boolean;
+  latitude: number;
+  longitude: number;
+}
+
+export interface Penatalayan {
+  id: number;
+  user: User;
+  jenisPelayanan: string;
+  churchEventId: number;
+  createdAt: string;
+  isActive: boolean;
+  index: number;
+}
+
+export interface ChurchEventsResponse extends BaseResponse {
+  data: ChurchEvent[];
 } 

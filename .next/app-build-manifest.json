@@ -6,10 +6,10 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/devotions/[id]/edit/page": [
+    "/church-events/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/devotions/[id]/edit/page.js"
+      "static/chunks/app/church-events/page.js"
     ],
     "/page": [
       "static/chunks/webpack.js",
@@ -20,6 +20,21 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/devotions/page.js"
+    ],
+    "/church-events/[id]/edit/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/church-events/[id]/edit/page.js"
+    ],
+    "/devotions/create/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/devotions/create/page.js"
+    ],
+    "/devotions/[id]/edit/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/devotions/[id]/edit/page.js"
     ]
   }
 }

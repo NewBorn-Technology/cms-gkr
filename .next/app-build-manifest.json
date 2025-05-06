@@ -1,40 +1,40 @@
 {
   "pages": {
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
+    ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/church-events/page": [
+    "/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/church-events/page.js"
+      "static/chunks/app/login/page.js"
     ],
-    "/page": [
+    "/home/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/home/page.js"
     ],
     "/devotions/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/devotions/page.js"
     ],
-    "/church-events/[id]/edit/page": [
+    "/church-events/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/church-events/[id]/edit/page.js"
+      "static/chunks/app/church-events/page.js"
     ],
     "/devotions/create/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/devotions/create/page.js"
-    ],
-    "/devotions/[id]/edit/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/devotions/[id]/edit/page.js"
     ]
   }
 }

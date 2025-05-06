@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { churchEventService } from '@/services/api';
 import { ChurchEvent } from '@/types/api';
-import { Pencil, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Pencil, Trash2, ChevronUp, ChevronDown, X } from 'lucide-react';
 
 type SortField = 'title' | 'eventDate' | 'isActive' | 'isEligibleToCheckIn';
 type SortDirection = 'asc' | 'desc';
@@ -17,6 +17,7 @@ export default function ChurchEventsPage() {
   const [events, setEvents] = useState<ChurchEvent[]>([]);
   const [sortField, setSortField] = useState<SortField>('eventDate');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -69,6 +70,14 @@ export default function ChurchEventsPage() {
         toast.error(error.response?.data?.message || 'Failed to delete event');
       }
     }
+  };
+
+  const handleImageClick = (imageUrl: string, title: string) => {
+    setPreviewImage({ url: imageUrl, title });
+  };
+
+  const closePreview = () => {
+    setPreviewImage(null);
   };
 
   const sortedEvents = [...events].sort((a, b) => {
@@ -160,7 +169,8 @@ export default function ChurchEventsPage() {
                               <img
                                 src={event.eventImageUrl}
                                 alt={event.title}
-                                className="h-16 w-16 rounded-lg object-cover"
+                                className="h-16 w-16 rounded-lg object-cover cursor-pointer hover:opacity-75 transition-opacity"
+                                onClick={() => handleImageClick(event.eventImageUrl, event.title)}
                               />
                             ) : (
                               <div className="h-16 w-16 rounded-lg bg-gray-100 flex items-center justify-center">
@@ -214,6 +224,44 @@ export default function ChurchEventsPage() {
           </div>
         </div>
       </div>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={closePreview}></div>
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                        {previewImage.title}
+                      </h3>
+                      <button
+                        type="button"
+                        className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none"
+                        onClick={closePreview}
+                      >
+                        <span className="sr-only">Close</span>
+                        <X className="h-6 w-6" />
+                      </button>
+                    </div>
+                    <div className="mt-2">
+                      <img
+                        src={previewImage.url}
+                        alt={previewImage.title}
+                        className="w-full h-auto rounded-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 } 

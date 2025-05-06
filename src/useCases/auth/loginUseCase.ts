@@ -1,13 +1,13 @@
 import { authService } from '../../services/api';
 import { LoginCredentials } from '../../types/api';
 import { toast } from 'react-hot-toast';
-import { useAuthStore } from '../../store/authStore';
+import { storeUserInfo } from '../../utils/auth';
 
 export const loginUseCase = async (credentials: LoginCredentials) => {
   try {
     const response = await authService.login(credentials);
     if (response.success) {
-      useAuthStore.getState().setUser(response.data);
+      storeUserInfo(response.data);
       toast.success(response.message || 'Login successful!');
     }
     return response;

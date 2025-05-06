@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { BaseResponse, LoginResponse, LoginCredentials, DevotionsResponse, Devotion, ChurchEventsResponse, ChurchEvent } from '../types/api';
+import { storeUserInfo } from '@/utils/auth';
 
 const API_URL = 'https://api-shepherd.jar-vis.com/api/v1';
 
@@ -36,14 +37,12 @@ export const authService = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     try {
       const response = await api.post<LoginResponse>('/auth/login', credentials);
-      // Store token and user info in localStorage
-      if (response.data.success && response.data.data.accessToken) {
-        localStorage.setItem('accessToken', response.data.data.accessToken);
-        // Store user info if available
-        if (response.data.data.user) {
-          localStorage.setItem('userInfo', JSON.stringify(response.data.data.user));
-        }
+      
+      // Data contains the user directly with accessToken
+      if (response.data.success && response.data.data) {
+        storeUserInfo(response.data.data);
       }
+      
       return response.data;
     } catch (error) {
       throw error;

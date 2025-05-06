@@ -2,15 +2,18 @@ import { create } from 'zustand';
 import { LoginResponseData } from '../types/api';
 
 interface AuthState {
-  user: LoginResponseData | null;
+  user: { 
+    accessToken: string;
+    user: LoginResponseData; 
+  } | null;
   isAuthenticated: boolean;
-  setUser: (user: LoginResponseData) => void;
+  setUser: (userData: { accessToken: string; user: LoginResponseData }) => void;
   clearUser: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
-  setUser: (user) => set({ user, isAuthenticated: true }),
+  setUser: (userData) => set({ user: userData, isAuthenticated: true }),
   clearUser: () => set({ user: null, isAuthenticated: false }),
 })); 

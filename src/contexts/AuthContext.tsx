@@ -3,6 +3,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { useAuthStore } from '@/store/authStore';
+import { initAuthFromStorage, clearUserInfo } from '@/utils/auth';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -13,33 +15,43 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  
+  // Use Zustand store for consistent auth state
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-    // Check if token exists on mount
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      setIsAuthenticated(true);
+    // Safe check for localStorage (client-side only)
+    if (typeof window !== 'undefined') {
+      // Initialize auth from localStorage
+      initAuthFromStorage();
+      setIsInitialized(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Only run redirection logic after initialization
+    if (!isInitialized) return;
+
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+    
+    if (isAuthenticated) {
       // Only redirect if we're on the login page
-      const currentPath = window.location.pathname;
       if (currentPath === '/login') {
         router.replace('/');
       }
     } else {
-      setIsAuthenticated(false);
-      // Only redirect to login if we're on a protected route
-      const currentPath = window.location.pathname;
-      const protectedRoutes = ['/devotions', '/church-events'];
+      // If not authenticated, check if on protected routes
+      const protectedRoutes = ['/home', '/devotions', '/church-events', '/community'];
       if (protectedRoutes.some(route => currentPath.startsWith(route))) {
+        console.log('Redirecting from protected route to login:', currentPath);
         router.replace('/login');
       }
     }
-  }, [router]);
+  }, [isAuthenticated, router, isInitialized]);
 
   const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('userInfo');
-    setIsAuthenticated(false);
+    clearUserInfo();
     toast.success('Logged out successfully');
     router.replace('/');
   };

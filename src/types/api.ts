@@ -10,12 +10,20 @@ export interface LoginCredentials {
 }
 
 export interface LoginResponseData {
+  id: number;
+  name: string;
+  email: string;
   accessToken: string;
-  user: {
-    id: number;
-    name: string;
-    email: string;
-  };
+  refreshToken: string;
+  isActive: boolean;
+  lastLoginDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  phone?: string | null;
+  mobilePhone?: string | null;
+  address?: string | null;
+  // Other optional fields from the API response
+  [key: string]: any;
 }
 
 export interface LoginResponse extends BaseResponse {

@@ -2,6 +2,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/contexts/AuthContext';
 import './globals.css';
 import type { Metadata } from 'next';
+import AuthInitializer from '@/components/AuthInitializer';
 
 export const metadata: Metadata = {
   title: 'Modern Login',
@@ -17,6 +18,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
+          <AuthInitializer />
           {children}
           <Toaster position="top-right" />
         </AuthProvider>

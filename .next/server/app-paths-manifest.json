@@ -1,7 +1,0 @@
-{
-  "/home/page": "app/home/page.js",
-  "/devotions/page": "app/devotions/page.js",
-  "/login/page": "app/login/page.js",
-  "/church-events/page": "app/church-events/page.js",
-  "/page": "app/page.js"
-}

@@ -19,13 +19,30 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Add a response interceptor to handle 403 errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 403) {
+      // Clear token and redirect to login
+      localStorage.removeItem('accessToken');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     try {
       const response = await api.post<LoginResponse>('/auth/login', credentials);
-      // Store token in localStorage
+      // Store token and user info in localStorage
       if (response.data.success && response.data.data.accessToken) {
         localStorage.setItem('accessToken', response.data.data.accessToken);
+        // Store user info if available
+        if (response.data.data.user) {
+          localStorage.setItem('userInfo', JSON.stringify(response.data.data.user));
+        }
       }
       return response.data;
     } catch (error) {

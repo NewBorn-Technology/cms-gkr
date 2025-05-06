@@ -10,14 +10,17 @@ export interface LoginCredentials {
 }
 
 export interface LoginResponseData {
-  id: number;
-  name: string;
-  email: string;
   accessToken: string;
-  dob: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  };
 }
 
-export type LoginResponse = BaseResponse<LoginResponseData>;
+export interface LoginResponse extends BaseResponse {
+  data: LoginResponseData;
+}
 
 export interface Devotion {
   id: number;

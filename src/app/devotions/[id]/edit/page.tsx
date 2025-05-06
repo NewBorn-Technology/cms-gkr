@@ -124,16 +124,17 @@ export default function EditDevotionPage({ params }: { params: { id: string } })
                     Date <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="date"
+                    type="text"
                     id="date"
                     name="date"
                     required
                     value={formData.date}
                     onChange={handleChange}
+                    placeholder="e.g., Monday, 15-04-2024"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                   />
                   <p className="mt-1 text-sm text-gray-500">
-                    Select the date for this devotion
+                    Enter the date in the format: Day, DD-MM-YYYY
                   </p>
                 </div>
 

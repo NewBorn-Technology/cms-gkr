@@ -1,5 +1,5 @@
 services:
-  next-dexter:
+  next:
     build:
       context: .
       dockerfile: Dockerfile

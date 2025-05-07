@@ -101,6 +101,7 @@ export const churchEventService = {
   getChurchEvents: async (): Promise<ChurchEventsResponse> => {
     try {
       const response = await api.get<ChurchEventsResponse>('/church-events');
+      // No longer transforming URLs - use them as-is from the API
       return response.data;
     } catch (error) {
       throw error;
@@ -146,6 +147,7 @@ export const churchEventService = {
   getChurchEventById: async (id: number): Promise<BaseResponse<ChurchEvent>> => {
     try {
       const response = await api.get<BaseResponse<ChurchEvent>>(`/church-events/${id}`);
+      // No longer transforming URLs - use them as-is from the API
       return response.data;
     } catch (error) {
       throw error;

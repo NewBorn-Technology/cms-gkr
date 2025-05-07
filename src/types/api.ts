@@ -68,7 +68,7 @@ export interface ChurchEvent {
   location: string;
   isActive: boolean;
   isEligibleToCheckIn: boolean;
-  imageUrl?: string;
+  eventImageUrl?: string;
   createdAt: string;
   updatedAt: string;
   attendees?: Attendee[];

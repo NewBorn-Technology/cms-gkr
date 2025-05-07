@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Img } from 'react-image';
 import { toast } from 'react-hot-toast';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { churchEventService } from '@/services/api';
@@ -17,6 +18,7 @@ export default function ChurchEventsPage() {
   const [sortField, setSortField] = useState<SortField>('eventDate');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchEvents();
@@ -26,9 +28,11 @@ export default function ChurchEventsPage() {
     try {
       const response = await churchEventService.getChurchEvents();
       if (response.success) {
+        console.log('Received events data:', response.data);
         setEvents(response.data);
       }
     } catch (error: any) {
+      console.error('Error fetching events:', error);
       toast.error(error.response?.data?.message || 'Failed to fetch events');
     } finally {
       setLoading(false);
@@ -75,6 +79,11 @@ export default function ChurchEventsPage() {
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
     return `${day}, ${dayOfMonth}-${month}-${year}`;
+  };
+
+  // Function to handle image errors
+  const handleImageError = (id: number) => {
+    setImageErrors(prev => ({ ...prev, [id]: true }));
   };
 
   return (
@@ -146,13 +155,24 @@ export default function ChurchEventsPage() {
                 {events.map((event) => (
                   <tr key={event.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {event.imageUrl ? (
-                        <img
-                          src={event.imageUrl}
-                          alt={event.title}
-                          className="h-10 w-10 rounded-lg object-cover cursor-pointer hover:opacity-75 transition-opacity"
-                          onClick={() => setPreviewImage({ url: event.imageUrl!, title: event.title })}
-                        />
+                      {event.eventImageUrl ? (
+                        <div className="h-10 w-10 relative">
+                          <Img
+                            src={event.eventImageUrl}
+                            alt={event.title}
+                            className="h-10 w-10 rounded-lg object-cover cursor-pointer hover:opacity-75 transition-opacity"
+                            onClick={() => setPreviewImage({ 
+                              url: event.eventImageUrl!, 
+                              title: event.title 
+                            })}
+                            loader={<div className="h-10 w-10 rounded-lg bg-gray-200 animate-pulse"></div>}
+                            unloader={
+                              <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                                <ImageIcon className="h-5 w-5 text-gray-400" />
+                              </div>
+                            }
+                          />
+                        </div>
                       ) : (
                         <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
                           <ImageIcon className="h-5 w-5 text-gray-400" />
@@ -221,12 +241,21 @@ export default function ChurchEventsPage() {
                       <X className="h-6 w-6" />
                     </button>
                   </div>
-                  <div className="mt-2 px-4 pb-4">
-                    <img
-                      src={previewImage.url}
-                      alt={previewImage.title}
-                      className="w-full h-auto rounded-lg"
-                    />
+                  <div className="mt-2 px-4 pb-4 relative">
+                    <div className="relative w-full h-[400px]">
+                      <Img
+                        src={previewImage.url}
+                        alt={previewImage.title}
+                        className="w-full h-full object-contain rounded-lg"
+                        loader={<div className="w-full h-full rounded-lg bg-gray-200 animate-pulse flex items-center justify-center">Loading...</div>}
+                        unloader={
+                          <div className="w-full h-[400px] rounded-lg bg-gray-100 flex flex-col items-center justify-center">
+                            <ImageIcon className="h-16 w-16 text-gray-400 mb-4" />
+                            <p className="text-gray-500">Failed to load image</p>
+                          </div>
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

@@ -25,6 +25,18 @@ export default function EditChurchEventPage({ params }: { params: { id: string }
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [imageError, setImageError] = useState(false);
+
+  // Function to check if an image URL is accessible
+  const checkImageExists = async (url: string): Promise<boolean> => {
+    try {
+      const res = await fetch(url, { method: 'HEAD' });
+      return res.ok;
+    } catch (e) {
+      console.error('Error checking image existence:', e);
+      return false;
+    }
+  };
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -38,16 +50,29 @@ export default function EditChurchEventPage({ params }: { params: { id: string }
             eventDate: event.eventDate,
             eventTime: event.eventTime,
             isEligibleToCheckIn: event.isEligibleToCheckIn,
-            eventImageUrl: event.eventImageUrl,
+            eventImageUrl: event.eventImageUrl || '',
             isActive: event.isActive,
           });
           if (event.eventImageUrl) {
-            // If the URL is already absolute, use it as is; otherwise, prepend the API base URL
-            const isAbsolute = event.eventImageUrl.startsWith('http');
-            const imageUrl = isAbsolute
-              ? event.eventImageUrl
-              : `https://api-shepherd.jar-vis.com/${event.eventImageUrl.replace(/^\//, '')}`;
-            setPreviewUrl(imageUrl);
+            // Use the event image URL directly, but check if it's accessible
+            const imageExists = await checkImageExists(event.eventImageUrl);
+            if (imageExists) {
+              setPreviewUrl(event.eventImageUrl);
+              setImageError(false);
+            } else {
+              console.warn('Image not accessible:', event.eventImageUrl);
+              setImageError(true);
+              // Try with appended file extensions
+              const extensionsToTry = ['.jpg', '.png', '.jpeg', '.gif'];
+              for (const ext of extensionsToTry) {
+                const urlWithExt = `${event.eventImageUrl}${ext}`;
+                if (await checkImageExists(urlWithExt)) {
+                  setPreviewUrl(urlWithExt);
+                  setImageError(false);
+                  break;
+                }
+              }
+            }
           }
         }
       } catch (error: any) {
@@ -316,18 +341,30 @@ export default function EditChurchEventPage({ params }: { params: { id: string }
                 </label>
                 <div className="mt-1 flex items-center space-x-4">
                   <div className="flex-shrink-0">
-                    {previewUrl ? (
+                    {previewUrl && !imageError ? (
                       <img
                         src={previewUrl}
                         alt="Preview"
                         className="h-20 w-20 rounded-lg object-cover"
+                        onError={(e) => {
+                          setImageError(true);
+                          console.error('Failed to load image:', previewUrl);
+                        }}
                       />
                     ) : (
                       <div className="h-20 w-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-                        <span className="text-gray-400 text-xs">No image</span>
+                        <span className="text-gray-400 text-xs">
+                          {formData.eventImageUrl ? 'Image not accessible' : 'No image'}
+                        </span>
                       </div>
                     )}
                   </div>
+                  {formData.eventImageUrl && imageError && (
+                    <div className="text-xs text-amber-600">
+                      Warning: Current image URL may not be accessible. 
+                      Consider uploading a new image.
+                    </div>
+                  )}
                   <div className="flex-grow">
                     <input
                       type="file"
@@ -339,13 +376,18 @@ export default function EditChurchEventPage({ params }: { params: { id: string }
                         file:rounded-md file:border-0
                         file:text-sm file:font-semibold
                         file:bg-primary file:text-white
-                        hover:file:bg-secondary"
+                        file:hover:bg-secondary"
                     />
                     <p className="mt-1 text-xs text-gray-500">
                       PNG, JPG, GIF up to 5MB
                     </p>
                   </div>
                 </div>
+                {formData.eventImageUrl && (
+                  <p className="mt-2 text-xs text-gray-500">
+                    Current image URL: {formData.eventImageUrl}
+                  </p>
+                )}
               </div>
             </div>
           </div>

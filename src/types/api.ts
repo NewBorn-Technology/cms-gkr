@@ -65,10 +65,12 @@ export interface ChurchEvent {
   description: string;
   eventDate: string;
   eventTime: string;
-  isEligibleToCheckIn: boolean;
-  eventImageUrl: string;
-  createdAt: string;
+  location: string;
   isActive: boolean;
+  isEligibleToCheckIn: boolean;
+  imageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
   attendees?: Attendee[];
   penatalayans?: Penatalayan[];
 }

@@ -15,9 +15,21 @@ import {
   Home, 
   ChevronRight, 
   FileText,
-  Bookmark
+  Bookmark,
+  ArrowRight,
+  Trophy,
+  Crown,
+  User
 } from 'lucide-react';
 import { getUserName } from '@/utils/auth';
+import { toast } from 'react-hot-toast';
+import axios from 'axios';
+
+interface UserProgressDto {
+  userId: number;
+  name: string;
+  progressPercent: number;
+}
 
 export default function HomePage() {
   const router = useRouter();
@@ -25,6 +37,7 @@ export default function HomePage() {
   const [isClient, setIsClient] = useState(false);
   const [greeting, setGreeting] = useState('');
   const [currentTab, setCurrentTab] = useState('dashboard');
+  const [topUsers, setTopUsers] = useState<UserProgressDto[]>([]);
   
   // Get auth state from store
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -41,6 +54,20 @@ export default function HomePage() {
     else setGreeting('Good Evening');
     
     console.log("Home page - current user:", userName);
+
+    // Fetch top 3 leaderboard users
+    const fetchTopUsers = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+        const res = await axios.get("https://api-shepherd.jar-vis.com/api/v1/summa-logos/users-progress", {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        setTopUsers(res.data.data.slice(0, 3));
+      } catch (err) {
+        setTopUsers([]);
+      }
+    };
+    fetchTopUsers();
   }, [userName]);
 
   // Immediate check for token
@@ -63,6 +90,10 @@ export default function HomePage() {
     return null;
   }
 
+  const handleLogin = () => {
+    router.push('/login');
+  };
+
   const handleSignOut = () => {
     logout();
     window.location.href = '/login';
@@ -72,7 +103,10 @@ export default function HomePage() {
     if (isAuthenticated) {
       router.push(path);
     } else {
-      router.push('/login');
+      toast.error('You need to log in first');
+      setTimeout(() => {
+        router.push('/login');
+      }, 1000);
     }
   };
 
@@ -83,9 +117,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex relative">
       {/* Sidebar */}
-      <div className="hidden md:flex md:flex-col md:w-64 md:bg-white md:border-r border-gray-200">
+      <div className="hidden md:flex md:flex-col md:w-64 md:bg-white md:border-r border-gray-200 fixed inset-y-0 left-0 z-40">
         <div className="h-20 flex items-center justify-center border-b border-gray-200">
           <div className="relative h-10 w-40">
             <Image 
@@ -142,21 +176,32 @@ export default function HomePage() {
               <Users className="mr-3 h-5 w-5" />
               Community
             </button>
+            <button
+              onClick={() => handleNavigation('/leaderboard')}
+              className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors text-gray-600 hover:bg-gray-100`}
+            >
+              <Trophy className="mr-3 h-5 w-5 text-yellow-500" />
+              Leaderboard
+            </button>
           </div>
         </nav>
-        <div className="p-4 border-t border-gray-200">
+      </div>
+
+      {/* Fixed Sign Out Button - Only visible when authenticated */}
+      {isAuthenticated && (
+        <div className="fixed bottom-0 left-0 w-64 p-4 bg-white border-t z-50">
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center px-4 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+            className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200 shadow-sm"
           >
-            <LogOut className="mr-3 h-5 w-5" />
+            <LogOut className="h-4 w-4 mr-2" />
             Sign Out
           </button>
         </div>
-      </div>
+      )}
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden md:ml-64">
         {/* Header */}
         <header className="bg-white shadow-sm z-10">
           <div className="flex items-center justify-between h-16 px-6">
@@ -191,7 +236,7 @@ export default function HomePage() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 transition-all hover:shadow-md">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-800">Upcoming Events</h3>
@@ -230,54 +275,80 @@ export default function HomePage() {
                 <span>Active members</span>
               </div>
             </div>
+
+            {/* Leaderboard Card as the last card */}
+            {topUsers.length > 0 && (
+              <div className="bg-gradient-to-br from-yellow-50 to-blue-50 rounded-xl p-4 shadow-md border border-yellow-100 flex flex-col items-start justify-between min-h-[120px] transition-all hover:shadow-lg">
+                <div className="flex items-center mb-2">
+                  <Crown className="h-6 w-6 text-yellow-400 mr-2" />
+                  <h3 className="text-base font-semibold text-gray-800">Top 3 Leaderboard</h3>
+                </div>
+                <div className="flex space-x-2 w-full justify-between">
+                  {topUsers.map((user, idx) => (
+                    <div key={user.userId} className="flex flex-col items-center min-w-[50px] max-w-[70px]">
+                      <div className="relative mb-1">
+                        {idx < 3 && (
+                          <Crown className={`absolute -top-3 left-1/2 -translate-x-1/2 h-4 w-4 ${idx === 0 ? 'text-yellow-400' : idx === 1 ? 'text-gray-400' : 'text-orange-400'}`} />
+                        )}
+                        <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center text-white text-base font-bold shadow">
+                          <User className="h-4 w-4" />
+                        </div>
+                      </div>
+                      <div className="text-[11px] font-semibold text-gray-900 truncate max-w-[60px] text-center">{user.name}</div>
+                      <div className="text-[10px] font-bold text-primary mt-1">{user.progressPercent.toFixed(1)}%</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Feature Sections */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Events Section */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                <h3 className="font-semibold text-gray-800">Upcoming Events</h3>
-                <button 
+              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+                <h3 className="font-semibold text-gray-800 text-base">Upcoming Events</h3>
+                <button
                   onClick={() => handleNavigation('/church-events')}
-                  className="text-primary hover:text-primary-dark text-sm font-medium flex items-center"
+                  className="text-primary hover:text-primary-dark text-xs font-medium flex items-center"
                 >
                   View All <ChevronRight className="h-4 w-4 ml-1" />
                 </button>
               </div>
-              <div className="px-6 py-4">
-                <div className="space-y-4">
+              <div className="px-4 py-2">
+                <div className="space-y-2">
                   {/* Event Item */}
-                  <div className="flex items-start p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex-shrink-0 bg-blue-100 rounded-lg p-2 text-center w-12">
-                      <div className="text-xs font-medium text-blue-800">MAY</div>
-                      <div className="text-lg font-bold text-blue-800">15</div>
+                  <div className="flex items-start py-2 rounded hover:bg-gray-50 transition-colors">
+                    <div className="flex-shrink-0 bg-blue-100 rounded-lg p-1 text-center w-10">
+                      <div className="text-[10px] font-medium text-blue-800">MAY</div>
+                      <div className="text-base font-bold text-blue-800">15</div>
                     </div>
-                    <div className="ml-4">
+                    <div className="ml-3">
                       <h4 className="text-sm font-medium text-gray-900">Sunday Service</h4>
                       <p className="text-xs text-gray-500">10:00 AM - Main Hall</p>
                     </div>
                   </div>
                   
                   {/* Event Item */}
-                  <div className="flex items-start p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex-shrink-0 bg-blue-100 rounded-lg p-2 text-center w-12">
-                      <div className="text-xs font-medium text-blue-800">MAY</div>
-                      <div className="text-lg font-bold text-blue-800">17</div>
+                  <div className="flex items-start py-2 rounded hover:bg-gray-50 transition-colors">
+                    <div className="flex-shrink-0 bg-blue-100 rounded-lg p-1 text-center w-10">
+                      <div className="text-[10px] font-medium text-blue-800">MAY</div>
+                      <div className="text-base font-bold text-blue-800">17</div>
                     </div>
-                    <div className="ml-4">
+                    <div className="ml-3">
                       <h4 className="text-sm font-medium text-gray-900">Prayer Meeting</h4>
                       <p className="text-xs text-gray-500">7:00 PM - Prayer Room</p>
                     </div>
                   </div>
                   
                   {/* Event Item */}
-                  <div className="flex items-start p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex-shrink-0 bg-blue-100 rounded-lg p-2 text-center w-12">
-                      <div className="text-xs font-medium text-blue-800">MAY</div>
-                      <div className="text-lg font-bold text-blue-800">20</div>
+                  <div className="flex items-start py-2 rounded hover:bg-gray-50 transition-colors">
+                    <div className="flex-shrink-0 bg-blue-100 rounded-lg p-1 text-center w-10">
+                      <div className="text-[10px] font-medium text-blue-800">MAY</div>
+                      <div className="text-base font-bold text-blue-800">20</div>
                     </div>
-                    <div className="ml-4">
+                    <div className="ml-3">
                       <h4 className="text-sm font-medium text-gray-900">Youth Gathering</h4>
                       <p className="text-xs text-gray-500">6:30 PM - Fellowship Hall</p>
                     </div>
@@ -288,25 +359,25 @@ export default function HomePage() {
 
             {/* Devotions Section */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                <h3 className="font-semibold text-gray-800">Recent Devotions</h3>
-                <button 
+              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+                <h3 className="font-semibold text-gray-800 text-base">Recent Devotions</h3>
+                <button
                   onClick={() => handleNavigation('/devotions')}
-                  className="text-primary hover:text-primary-dark text-sm font-medium flex items-center"
+                  className="text-primary hover:text-primary-dark text-xs font-medium flex items-center"
                 >
                   View All <ChevronRight className="h-4 w-4 ml-1" />
                 </button>
               </div>
-              <div className="px-6 py-4">
-                <div className="space-y-4">
+              <div className="px-4 py-2">
+                <div className="space-y-2">
                   {/* Devotion Item */}
-                  <div className="group flex items-start p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="group flex items-start py-2 rounded hover:bg-gray-50 transition-colors">
                     <div className="flex-shrink-0 text-green-500">
                       <FileText className="h-5 w-5" />
                     </div>
-                    <div className="ml-4">
+                    <div className="ml-3">
                       <h4 className="text-sm font-medium text-gray-900 group-hover:text-primary">Faith in Action</h4>
-                      <p className="text-xs text-gray-500">James 2:14-26 • May 14, 2023</p>
+                      <p className="text-xs text-gray-500">James 2:14-26 • Monday, 14-05-2023</p>
                     </div>
                     <div className="ml-auto">
                       <button className="p-1 text-gray-400 hover:text-primary">
@@ -316,29 +387,13 @@ export default function HomePage() {
                   </div>
                   
                   {/* Devotion Item */}
-                  <div className="group flex items-start p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="group flex items-start py-2 rounded hover:bg-gray-50 transition-colors">
                     <div className="flex-shrink-0 text-green-500">
                       <FileText className="h-5 w-5" />
                     </div>
-                    <div className="ml-4">
+                    <div className="ml-3">
                       <h4 className="text-sm font-medium text-gray-900 group-hover:text-primary">The Good Shepherd</h4>
-                      <p className="text-xs text-gray-500">John 10:1-18 • May 13, 2023</p>
-                    </div>
-                    <div className="ml-auto">
-                      <button className="p-1 text-gray-400 hover:text-primary">
-                        <Bookmark className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Devotion Item */}
-                  <div className="group flex items-start p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex-shrink-0 text-green-500">
-                      <FileText className="h-5 w-5" />
-                    </div>
-                    <div className="ml-4">
-                      <h4 className="text-sm font-medium text-gray-900 group-hover:text-primary">Fruits of the Spirit</h4>
-                      <p className="text-xs text-gray-500">Galatians 5:22-23 • May 12, 2023</p>
+                      <p className="text-xs text-gray-500">John 10:1-18 • Sunday, 13-05-2023</p>
                     </div>
                     <div className="ml-auto">
                       <button className="p-1 text-gray-400 hover:text-primary">

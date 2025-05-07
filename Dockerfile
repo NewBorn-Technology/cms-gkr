@@ -1,20 +1,29 @@
-FROM node:20.15.1-bullseye
+FROM node:18-alpine
 
-RUN apt-get update && apt-get install -y \
-    libc6-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Install dependencies for sharp
+RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
+# Copy package files first for better caching
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy the rest of the app
 COPY . .
 
-RUN npm install sharp \
-    && npm install \
-    && npm run build
+# Build the application
+RUN npm run build
 
-EXPOSE 3001
+# Expose the port the app will run on
+EXPOSE 3000
 
-ENV PORT 3001
+# Set environment variables
+ENV PORT 3000
 ENV HOST 0.0.0.0
+ENV NODE_ENV production
 
-CMD npm run start
+# Start the application
+CMD ["npm", "start"]

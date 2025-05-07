@@ -1,9 +1,11 @@
 import Link from 'next/link';
-import { BookOpen, Calendar, Home, Users } from 'lucide-react';
+import { BookOpen, Calendar, Home, Users, Trophy } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const Sidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <div className="space-y-1">
@@ -51,6 +53,13 @@ const Sidebar = () => {
         <Users className="mr-3 h-5 w-5" />
         Community
       </Link>
+      <button
+        onClick={() => router.push('/leaderboard')}
+        className="w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors text-gray-600 hover:bg-gray-100"
+      >
+        <Trophy className="mr-3 h-5 w-5 text-yellow-500" />
+        Leaderboard
+      </button>
     </div>
   );
 };

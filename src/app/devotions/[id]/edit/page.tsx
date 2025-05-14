@@ -39,7 +39,7 @@ export default function EditDevotionPage({ params }: { params: { id: string } })
             });
           } else {
             console.log('No devotion data returned, but request was successful');
-            toast.info('No devotion found with this ID');
+            toast('No devotion found with this ID');
             router.push('/devotions');
           }
         } else {

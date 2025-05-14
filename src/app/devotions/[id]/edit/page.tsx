@@ -26,16 +26,25 @@ export default function EditDevotionPage({ params }: { params: { id: string } })
       try {
         const response = await devotionService.getDevotionById(parseInt(params.id));
         if (response.success) {
-          const devotion = response.data;
-          setFormData({
-            date: devotion.date,
-            title: devotion.title,
-            subtitle: devotion.subtitle,
-            book: devotion.book,
-            videoUrl: devotion.videoUrl,
-            content: devotion.content,
-            isActive: devotion.isActive,
-          });
+          if (response.data) {
+            const devotion = response.data;
+            setFormData({
+              date: devotion.date,
+              title: devotion.title,
+              subtitle: devotion.subtitle,
+              book: devotion.book,
+              videoUrl: devotion.videoUrl,
+              content: devotion.content,
+              isActive: devotion.isActive,
+            });
+          } else {
+            console.log('No devotion data returned, but request was successful');
+            toast.info('No devotion found with this ID');
+            router.push('/devotions');
+          }
+        } else {
+          toast.error(response.message || 'Failed to fetch devotion');
+          router.push('/devotions');
         }
       } catch (error: any) {
         toast.error(error.response?.data?.message || 'Failed to fetch devotion');

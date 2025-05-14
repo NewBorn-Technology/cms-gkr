@@ -1,6 +1,6 @@
 export interface BaseResponse<T = any> {
   success: boolean;
-  data: T;
+  data: T | null;
   message: string;
 }
 
@@ -45,7 +45,7 @@ export interface Devotion {
 
 export interface DevotionsResponse {
   success: boolean;
-  data: Devotion[];
+  data: Devotion[] | null;
   totalCount: number;
   message: string;
 }
@@ -97,5 +97,5 @@ export interface Penatalayan {
 }
 
 export interface ChurchEventsResponse extends BaseResponse {
-  data: ChurchEvent[];
+  data: ChurchEvent[] | null;
 } 

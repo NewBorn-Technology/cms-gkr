@@ -42,7 +42,7 @@ export default function EditChurchEventPage({ params }: { params: { id: string }
     const fetchEvent = async () => {
       try {
         const response = await churchEventService.getChurchEventById(parseInt(params.id));
-        if (response.success) {
+        if (response.success && response.data) {
           const event = response.data;
           setFormData({
             title: event.title,
@@ -74,6 +74,9 @@ export default function EditChurchEventPage({ params }: { params: { id: string }
               }
             }
           }
+        } else {
+          toast.error('Event not found');
+          router.push('/church-events');
         }
       } catch (error: any) {
         toast.error(error.response?.data?.message || 'Failed to fetch event');

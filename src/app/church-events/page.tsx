@@ -29,11 +29,24 @@ export default function ChurchEventsPage() {
       const response = await churchEventService.getChurchEvents();
       if (response.success) {
         console.log('Received events data:', response.data);
-        setEvents(response.data);
+        
+        // Handle null data gracefully by setting an empty array
+        setEvents(response.data || []);
+        
+        // Log but don't show an error to the user
+        if (response.data === null) {
+          console.log('API returned success with null data');
+        }
+      } else {
+        // Only show error toast when the API explicitly returns success: false
+        console.error('API returned error:', response.message);
+        toast.error(response.message || 'Failed to fetch events');
       }
     } catch (error: any) {
-      console.error('Error fetching events:', error);
-      toast.error(error.response?.data?.message || 'Failed to fetch events');
+      // Only show error for actual exceptions (network issues, etc.)
+      console.error('Exception when fetching events:', error);
+      const errorMessage = error.response?.data?.message || 'Network error while fetching events';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

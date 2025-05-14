@@ -23,10 +23,19 @@ export default function DevotionsPage() {
       try {
         const response = await devotionService.getDevotions();
         if (response.success) {
-          setDevotions(response.data);
+          setDevotions(response.data || []);
+          
+          if (response.data === null) {
+            console.log('API returned success with null data');
+          }
+        } else {
+          console.error('API returned error:', response.message);
+          toast.error(response.message || 'Failed to fetch devotions');
         }
       } catch (error: any) {
-        toast.error(error.response?.data?.message || 'Failed to fetch devotions');
+        console.error('Exception when fetching devotions:', error);
+        const errorMessage = error.response?.data?.message || 'Network error while fetching devotions';
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }

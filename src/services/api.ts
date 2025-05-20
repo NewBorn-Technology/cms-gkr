@@ -132,7 +132,7 @@ export const churchEventService = {
 
   updateChurchEvent: async (id: number, event: FormData): Promise<BaseResponse<ChurchEvent>> => {
     try {
-      const response = await api.put<BaseResponse<ChurchEvent>>(`/church-events/${id}`, event, {
+      const response = await api.patch<BaseResponse<ChurchEvent>>(`/church-events/${id}`, event, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

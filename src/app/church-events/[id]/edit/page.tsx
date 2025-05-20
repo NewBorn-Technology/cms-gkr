@@ -26,6 +26,18 @@ export default function EditChurchEventPage({ params }: { params: { id: string }
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [imageError, setImageError] = useState(false);
+  const [displayDate, setDisplayDate] = useState('');
+
+  // Function to format date as "Wednesday, 07-05-2025"
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const day = days[date.getDay()];
+    const dayOfMonth = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}, ${dayOfMonth}-${month}-${year}`;
+  };
 
   // Function to check if an image URL is accessible
   const checkImageExists = async (url: string): Promise<boolean> => {
@@ -53,6 +65,12 @@ export default function EditChurchEventPage({ params }: { params: { id: string }
             eventImageUrl: event.eventImageUrl || '',
             isActive: event.isActive,
           });
+          
+          // Set display date in the format "Wednesday, 07-05-2025"
+          if (event.eventDate) {
+            setDisplayDate(formatDate(event.eventDate));
+          }
+          
           if (event.eventImageUrl) {
             // Use the event image URL directly, but check if it's accessible
             const imageExists = await checkImageExists(event.eventImageUrl);
@@ -150,7 +168,7 @@ export default function EditChurchEventPage({ params }: { params: { id: string }
         }
       });
       if (selectedFile) {
-        submitData.append('eventImage', selectedFile);
+        submitData.append('image', selectedFile);
       } else if (formData.eventImageUrl) {
         submitData.append('eventImageUrl', formData.eventImageUrl);
       }
@@ -292,12 +310,13 @@ export default function EditChurchEventPage({ params }: { params: { id: string }
                     Event Date <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="date"
+                    type="text"
                     id="eventDate"
                     name="eventDate"
                     required
                     value={formData.eventDate}
                     onChange={handleChange}
+                    placeholder="e.g., 25-11-2025"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
                   />
                 </div>

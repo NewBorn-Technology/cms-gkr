@@ -54,7 +54,7 @@ export default function CreateChurchEventPage() {
         }
       });
       if (selectedFile) {
-        submitData.append('eventImage', selectedFile);
+        submitData.append('image', selectedFile);
       }
 
       const response = await churchEventService.createChurchEvent(submitData);
@@ -123,12 +123,13 @@ export default function CreateChurchEventPage() {
                 Event Date <span className="text-red-500">*</span>
               </label>
               <input
-                type="date"
+                type="text"
                 id="eventDate"
                 name="eventDate"
                 required
                 value={formData.eventDate}
                 onChange={handleChange}
+                placeholder="e.g., 25-11-2025"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
               />
             </div>
